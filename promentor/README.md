@@ -1,46 +1,97 @@
-# ProMentor 学习记录 · mini-todo
+# ProMentor 学习记录 · 两门课 + 学习笔记
 
-用 [ProMentor](https://github.com/Lyn-77/ProMentor) 对 `mini-todo` 项目（零依赖命令行待办清单，纯 JavaScript / ESM，7 个文件约 320 行）生成的**零基础课程**，逐章手写核心函数并通过行为测试。
+用 [ProMentor](https://github.com/Lyn-77/ProMentor) 把**真实项目**变成"手写核心逻辑 → 跑行为测试 → AI Review"的课程。
+已经打完两门（一门零基础课、一门语言速成），第三门（TypeScript 插件课）进行到 2/7。
 
-**进度：7/7 章全部完成，每章都是 100 分、一次通过。**
+课程数据（`.promentor/`：讲义、规格、测试、提交记录）按 ProMentor 约定**不入库**；这里放**我自己写的实现**和**我的学习笔记**。
 
-课程数据（`.promentor/`：讲义、规格、测试、提交记录）按 ProMentor 约定不入库，这里只放**我自己写的实现**。
+## 进度总览
 
-| 章 | 内容 | 我写的文件 | 状态 |
+| 课程 | 语言 | 进度 | 说明 |
 |---|---|---|---|
-| ch00 | 你的第一个函数：把标题洗干净 | `mini-todo/ch00-title.js` | ✅ 100% |
-| ch01 | 任务对象与列表 | `mini-todo/ch01-task.js` | ✅ 100% |
-| ch02 | 改状态与删除 | `mini-todo/ch02-task.js` | ✅ 100% |
-| ch03 | 过滤与统计 | `mini-todo/ch03-query.js` | ✅ 100% |
-| ch04 | 打印列表与读懂命令行 | `mini-todo/ch04-render.js`、`ch04-args.js` | ✅ 100% |
-| ch05 | 存盘与读盘 | `mini-todo/ch05-store.js` | ✅ 100% |
-| ch06 | Final：组装命令行程序 | `mini-todo/ch06-cli.js` | ✅ 100% |
+| `mini-todo`（零依赖命令行待办清单） | JavaScript | **7/7 ✅** | 63 条行为测试全绿，每章一次通过 |
+| TypeScript 速成（为插件课铺路） | TypeScript | **✅ 完成** | 类型标注 / interface / readonly / import type |
+| `promentor-dashboard-plugin`（DSH 插件源码：host 网关 + client 面板） | TypeScript | **2/7** | Ch0 11/11 ✅、Ch1 18/18 ✅，Ch2–Ch6 待做 |
 
-## 目录说明
+## 目录
 
-每个文件是那一章要求的实现，接口签名与课程规格（`lab.json`）一致。文件名前面加了章号，因为 ch01 和 ch02 要求的文件名都叫 `task.js`。
-
-归档时做了两类轻整理，**代码逻辑没有改动**：
-
-1. **路径**：`ch01` 的 1 行 import、`ch06` 的 6 行 import 改成同目录的扁平文件名（原来指向 `../ch0X-xxx/` 的课程目录，复制过来会失效）。
-2. **可读性**：课程脚手架留下的"本文件已清空，请自己打一遍""填空版"等过期注释，改写成解释性说明；`ch02`、`ch04` 的缩进对齐。
-
-## 各章学到的东西
-
-- **ch00 `normalizeTitle`**：先判类型再加工 —— 不判的话 `raw.trim()` 会崩，而 `raw.trim is not a function` 这种报错对调用方毫无帮助；"洗完为空"的判断必须放在**加工之后**；坏输入用 `throw` 挡在门口，而不是返回空字符串让它悄悄流进数据文件。
-- **ch01 `createTask` / `addTask`**：对象字面量 `{ id, title, done }`；用展开运算符 `...` 往数组末尾加东西；**返回新数组**而不是修改原数组。
-- **ch02 `findTask` / `toggleTask` / `removeTask`**：`find` 找不到返回 `undefined` 是**正常结果**，但"用户要改一条不存在的任务"就该抛错 —— 要区分"正常的没有"和"出错了"；用 `map` / `filter` 做到"只改需要改的那一个"。
-- **ch03 `filterTasks` / `summarize`**：把多个条件组合起来（状态 + 关键字）；`??` 用来区分"没给参数"和"给了空字符串"；派生数据 —— 不改原数据，只算出新的东西。
-- **ch04 `renderList` / `parseArgs`**：先量出最长的 id（`idwidth`），再用 `padEnd` 补齐，输出的列才会对齐；空列表要给一句人话；命令表做成常量 `COMMANDS`，校验和报错都引用它，以后加命令只用改一处；报错时顺手接上 `usage()`。
-- **ch05 `loadTasks` / `saveTasks`**：读写硬盘是异步的，所以函数是 `async`、调用时要 `await`；只有 `ENOENT`（文件不存在）算正常情况、返回空数组，其它错误（比如 JSON 坏了）原样抛出，**不能吞掉**；写盘用 `JSON.stringify(tasks, null, 2)` 并以换行结尾，文件才是人可读、结尾干净的。
-- **ch06 `run`**：入口文件只做"编排"—— 解析参数 → 读数据 → 按命令分派 → 写回 → 打印结果；把 6 个零件接成一个真能跑的程序（`node .promentor/main.js` 跑到 exit 0）。
-
-## 怎么跑测试
-
-在 `mini-todo` 项目目录下：
-
-```bash
-node .promentor/chapters/<章节目录>/lab_test.js
+```
+promentor/
+├── mini-todo/     第一门课：7 章实现 + 可运行入口（main.js / package.json，零依赖）
+├── dsh-plugin/    第三门课：已完成的两章实现（TypeScript）
+├── ts-bridge/     TypeScript 速成练习
+└── notes/         学习笔记（5 份）
 ```
 
-行为测试由课程提供，**不修改**；`src/` 是原项目的参考实现，只读对照，不抄。
+### `mini-todo/` —— 第一门课（7/7）
+
+| 章 | 内容 | 文件 | 状态 |
+|---|---|---|---|
+| ch00 | 你的第一个函数：把标题洗干净 | `ch00-title.js` | ✅ 100% |
+| ch01 | 任务对象与列表 | `ch01-task.js` | ✅ 100% |
+| ch02 | 改状态与删除 | `ch02-task.js` | ✅ 100% |
+| ch03 | 过滤与统计 | `ch03-query.js` | ✅ 100% |
+| ch04 | 打印列表与读懂命令行 | `ch04-render.js`、`ch04-args.js` | ✅ 100% |
+| ch05 | 存盘与读盘 | `ch05-store.js` | ✅ 100% |
+| Final | 组装命令行程序 | `ch06-cli.js` | ✅ 100% |
+
+**可以直接跑**（零依赖，Node 18+）：
+
+```bash
+cd promentor/mini-todo
+node main.js add 买牛奶
+node main.js add 写作业
+node main.js list
+node main.js list todo 牛奶
+node main.js done t1
+node main.js remove t1
+```
+
+`main.js` 只负责"接线"（拿命令行参数 → 调 `run()` → 处理错误与退出码），真正的逻辑全在
+`ch01`–`ch06` 那七个文件里 —— 这七章攒出来的就是一个成品。数据存在同目录 `tasks.json`（已被 `.gitignore` 排除）。
+
+> 提示：中文参数在 Windows PowerShell 里可能因控制台编码（936）变乱码，先 `chcp 65001`，或直接在 WSL 的 Ubuntu 里跑。
+
+### `dsh-plugin/` —— 第三门课（2/7，正在做）
+
+| 章 | 内容 | 难度 | 文件 | 状态 |
+|---|---|---|---|---|
+| ch00 | 插件双半模型与运行环境 | easy | `ch00-plugin-anatomy.ts`（`describePlugin`） | ✅ 100% |
+| ch01 | Host 数据网关与路径安全 | hard | `ch01-host-gateway.ts`（`resolveCourseFile` / `contentTypeFor` / `isReadableMethod`） | ✅ 100% |
+| ch02 | 数据层：把文件树折叠成课程模型 | mid | — | 下一步 |
+| ch03 | 状态层：手写 external store | easy | — | 待做 |
+| ch04 | 视图状态机：dock 与 panel | mid | — | 待做 |
+| ch05 | 插件装配：slot / 词典 / 打包清单 | mid | — | 待做 |
+| Final | 组装 mini-promentor | hard | — | 待做 |
+
+### `ts-bridge/` —— TypeScript 速成
+
+| 文件 | 说明 |
+|---|---|
+| `exercise.ts` | 给 `addTask` / `summarize` 加类型：interface、`readonly`、参数与返回值标注 |
+
+### `notes/` —— 学习笔记（5 份）
+
+| 文件 | 讲什么 |
+|---|---|
+| `学习工作流.md` | 一章的 10 步流程、三条硬规则（保存协议 / 别全选 / 整行替换）、把错误分成"打字层 vs 理解层"、Node 直接跑 `.ts` 的内部五步、四种运行期报错怎么分辨 |
+| `课程地图.md` | 一页纸地图：插件为什么拆成 host / client 两块、那条线上为什么必须站"保安"、mini-todo 五步与插件课五步的对应关系 |
+| `我的代码合集.md` | mini-todo 七章代码速览，每段附一句"这一段学到的" |
+| `我学过的固定格式.md` | JS 句型与标点速查（20 节：函数/对象/数组/if/for/箭头/三元/展开，运算符表、报错读法、默写清单、Ch4–Final 新格式） |
+| `标点速查表.md` | 标点配对规则与常用句型，写代码时对着看 |
+
+> 笔记里出现的 `.promentor/chapters/...` 是本地课程目录的路径。课程数据不入库，这里只保留文字记录。
+
+## 两门课在学什么（一句话）
+
+- **mini-todo**：把一件事拆成"能测试的小零件"再拼起来 —— 造零件 → 查改 → 显示 → 存取 → 组装，五步全走通。
+- **插件课**：同一套五步，但**零件分布在两个程序里**（后台能读盘、浏览器能画界面），中间只有一条**不可信**的线，所以线上必须站一个"保安" —— 那就是 Ch1 的路径安全判定。
+
+## 归档说明（整理方式）
+
+**代码逻辑一字未改**，只做了两类整理：
+
+1. **路径**：跨文件的 `import` 改成归档后的扁平文件名（课程目录里的相对路径复制过来会失效）。
+2. **可读性**：课程脚手架留下的"本文件已清空，请自己打一遍""填空版""逻辑留给你写"等过期注释，改写成说明性注释；对齐了手打时的缩进空格。
+
+笔记里"还没 submit""下一章是 Ch4"之类的进度描述，已按实际完成情况更新。

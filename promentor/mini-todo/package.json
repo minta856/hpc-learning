@@ -1,0 +1,14 @@
+{
+  "name": "mini-todo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "零依赖命令行待办清单：用 ProMentor 课程七章手写的函数组装成的可运行程序",
+  "scripts": {
+    "start": "node main.js",
+    "demo": "node main.js add 买牛奶 && node main.js add 写作业 && node main.js list"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
